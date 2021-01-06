@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteSchoolWebApp", "RemoteSchoolWebApp\RemoteSchoolWebApp.csproj", "{B2F5A5E7-55B2-48BE-B35C-6CEC2117C9C9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B2F5A5E7-55B2-48BE-B35C-6CEC2117C9C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2F5A5E7-55B2-48BE-B35C-6CEC2117C9C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2F5A5E7-55B2-48BE-B35C-6CEC2117C9C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2F5A5E7-55B2-48BE-B35C-6CEC2117C9C9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4C8FF6AC-49A0-477E-BB56-3B75A2878832}
+	EndGlobalSection
+EndGlobal
