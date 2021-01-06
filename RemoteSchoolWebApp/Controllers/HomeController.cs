@@ -39,7 +39,6 @@ namespace RemoteSchoolWebApp.Controllers
         public async Task<IActionResult> Register(string email, string password, string className, string role)
         {
             Regex emailRegex = new Regex(@"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$");
-            Debug.WriteLine(email);
             if (!emailRegex.IsMatch(email))
             {
                 Debug.WriteLine("Wrong email format.");
@@ -96,6 +95,31 @@ namespace RemoteSchoolWebApp.Controllers
                 };
                 await _roleManager.CreateAsync(newRole);
             }
+        }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(string email, string password)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, false);
+
+            if (!signInResult.Succeeded)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Privacy()
