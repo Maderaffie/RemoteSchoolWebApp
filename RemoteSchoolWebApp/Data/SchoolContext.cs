@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using RemoteSchoolWebApp.Models;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RemoteSchoolWebApp.Data
 {
-    public class SchoolContext : DbContext
+    public class SchoolContext : IdentityDbContext
     {
         public DbSet<Class> Classes { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
