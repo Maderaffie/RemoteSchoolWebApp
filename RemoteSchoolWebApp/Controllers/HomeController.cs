@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RemoteSchoolWebApp.Data;
 using RemoteSchoolWebApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -16,13 +18,15 @@ namespace RemoteSchoolWebApp.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SchoolContext _schoolContext;
 
         public HomeController(UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager, SignInManager<IdentityUser> signInManager)
+            RoleManager<IdentityRole> roleManager, SignInManager<IdentityUser> signInManager, SchoolContext schoolContext)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
+            _schoolContext = schoolContext;
         }
 
         public IActionResult Index()
@@ -65,10 +69,22 @@ namespace RemoteSchoolWebApp.Controllers
             if (role.Equals("Teacher"))
             {
                 await _userManager.AddToRoleAsync(user, "Teacher");
+                Teacher teacher = new Teacher();
+                teacher.Email = email;
+                int currentId = _schoolContext.Classes.SingleOrDefault(x => x.Name == className).Id;
+                teacher.ClassId = currentId;
+                _schoolContext.Teachers.Add(teacher);
+                _schoolContext.SaveChanges();
             }
             else
             {
                 await _userManager.AddToRoleAsync(user, "Parent");
+                Parent parent = new Parent();
+                parent.Email = email;
+                int currentId = _schoolContext.Classes.SingleOrDefault(x => x.Name == className).Id;
+                parent.ClassId = currentId;
+                _schoolContext.Parents.Add(parent);
+                _schoolContext.SaveChanges();
             }
 
             var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, false);
@@ -77,11 +93,13 @@ namespace RemoteSchoolWebApp.Controllers
             {
                 Debug.WriteLine("Login failed.");
                 return RedirectToAction(nameof(Register));
-            } 
-            else
-            {
-                return RedirectToAction(nameof(Index));
             }
+
+            if (role.Equals("Teacher"))
+                return RedirectToAction(nameof(Index));
+            else
+                return RedirectToAction(nameof(ParentInformation));
+            
         }
 
         private async Task CreateRoleIfNotExists(string role)
@@ -118,6 +136,33 @@ namespace RemoteSchoolWebApp.Controllers
             {
                 return RedirectToAction(nameof(Login));
             }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult ParentInformation()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ParentInformation(string parentFirstName, string parentLastName, 
+                                                            string studentFirstName, string studentLastName)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            Parent parent = _schoolContext.Parents.SingleOrDefault(x => x.Email == userEmail);
+            parent.FirstName = parentFirstName;
+            parent.LastName = parentLastName;
+
+            Student student = new Student();
+            student.FirstName = studentFirstName;
+            student.LastName = studentLastName;
+            student.ParentId = parent.Id;
+            student.ClassId = parent.ClassId;
+            _schoolContext.Students.Add(student);
+
+            _schoolContext.SaveChanges();
 
             return RedirectToAction(nameof(Index));
         }

@@ -13,10 +13,7 @@ namespace RemoteSchoolWebApp.Models
         [StringLength(64)]
         [DataType(DataType.EmailAddress)]
         [EmailAddress]
-        public string Login { get; set; }
-        [Required]
-        [StringLength(32)]
-        public string Password { get; set; }
+        public string Email { get; set; }
 
         [ForeignKey("Class")]
         public int? ClassId { get; set; }

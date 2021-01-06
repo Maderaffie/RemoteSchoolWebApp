@@ -11,10 +11,9 @@ namespace RemoteSchoolWebApp.Models
     {
         [Required]
         [StringLength(64)]
-        public string Login { get; set; }
-        [Required]
-        [StringLength(32)]
-        public string Password { get; set; }
+        [DataType(DataType.EmailAddress)]
+        [EmailAddress]
+        public string Email { get; set; }
 
         public Student Student { get; set; }
 
