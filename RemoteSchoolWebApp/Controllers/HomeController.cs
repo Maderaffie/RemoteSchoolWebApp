@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RemoteSchoolWebApp.Data;
 using RemoteSchoolWebApp.Models;
@@ -137,7 +138,9 @@ namespace RemoteSchoolWebApp.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Teacher");
+          
+
         }
 
         public IActionResult ParentInformation()
@@ -185,7 +188,7 @@ namespace RemoteSchoolWebApp.Controllers
 
             _schoolContext.SaveChanges();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Teacher");
         }
 
         public IActionResult Privacy()
