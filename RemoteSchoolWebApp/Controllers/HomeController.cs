@@ -97,7 +97,7 @@ namespace RemoteSchoolWebApp.Controllers
             }
 
             if (role.Equals("Teacher"))
-                return RedirectToAction(nameof(TeacherInformation));
+                return RedirectToAction("TeacherInformation", "Teacher");
             else
                 return RedirectToAction(nameof(ParentInformation));
             
@@ -125,6 +125,7 @@ namespace RemoteSchoolWebApp.Controllers
         public async Task<IActionResult> Login(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
+            var userRole = User.IsInRole("Parent") ? "Parent" : "Teacher";
 
             if (user == null)
             {
@@ -138,9 +139,7 @@ namespace RemoteSchoolWebApp.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
-            return RedirectToAction("Index", "Teacher");
-          
-
+            return RedirectToAction("Index", userRole);
         }
 
         public IActionResult ParentInformation()
@@ -172,23 +171,10 @@ namespace RemoteSchoolWebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult TeacherInformation()
+        public async Task<IActionResult> Logout()
         {
-            return View(); 
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> TeacherInformation(string teacherFirstName, string teacherLastName)
-        {
-            var userEmail = User.FindFirstValue(ClaimTypes.Email);
-
-            Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
-            teacher.FirstName = teacherFirstName;
-            teacher.LastName = teacherLastName;
-
-            _schoolContext.SaveChanges();
-
-            return RedirectToAction("Index", "Teacher");
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index");
         }
 
         public IActionResult Privacy()

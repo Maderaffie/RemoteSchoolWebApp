@@ -1,3 +1,15 @@
 ﻿@{
-    Layout = "_Layout";
+    if (this.User.IsInRole("Teacher"))
+    {
+        Layout = "_TeacherLayout";
+    }
+    else if (this.User.IsInRole("Parent"))
+    {
+        Layout = "_Layout";
+    }
+    else if (!this.User.Identity.IsAuthenticated)
+    {
+        Layout = "_Layout";
+    }
+
 }

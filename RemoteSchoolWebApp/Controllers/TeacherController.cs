@@ -34,5 +34,34 @@ namespace RemoteSchoolWebApp.Controllers
 
             return View(classView);
         }
+
+        public IActionResult TeacherInformation()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TeacherInformation(string teacherFirstName, string teacherLastName)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
+            teacher.FirstName = teacherFirstName;
+            teacher.LastName = teacherLastName;
+
+            _schoolContext.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Exercises()
+        {
+            return View();
+        }
+
+        public IActionResult Raport()
+        {
+            return View();
+        }
     }
 }
