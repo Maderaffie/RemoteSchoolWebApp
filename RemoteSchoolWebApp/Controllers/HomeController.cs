@@ -96,7 +96,7 @@ namespace RemoteSchoolWebApp.Controllers
             }
 
             if (role.Equals("Teacher"))
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(TeacherInformation));
             else
                 return RedirectToAction(nameof(ParentInformation));
             
@@ -155,12 +155,33 @@ namespace RemoteSchoolWebApp.Controllers
             parent.FirstName = parentFirstName;
             parent.LastName = parentLastName;
 
-            Student student = new Student();
-            student.FirstName = studentFirstName;
-            student.LastName = studentLastName;
-            student.ParentId = parent.Id;
-            student.ClassId = parent.ClassId;
+            Student student = new Student
+            {
+                FirstName = studentFirstName,
+                LastName = studentLastName, 
+                ParentId = parent.Id,
+                ClassId = parent.ClassId
+            };
             _schoolContext.Students.Add(student);
+
+            _schoolContext.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult TeacherInformation()
+        {
+            return View(); 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TeacherInformation(string teacherFirstName, string teacherLastName)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
+            teacher.FirstName = teacherFirstName;
+            teacher.LastName = teacherLastName;
 
             _schoolContext.SaveChanges();
 
