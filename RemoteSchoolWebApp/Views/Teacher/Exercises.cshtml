@@ -1,1 +1,28 @@
-﻿
+﻿@model RemoteSchoolWebApp.Models.Class
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Assignments[0].Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Assignments[0].Description)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Assignments)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

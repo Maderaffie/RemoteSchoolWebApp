@@ -54,9 +54,17 @@ namespace RemoteSchoolWebApp.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult Exercises()
+        public async Task<IActionResult> Exercises()
         {
-            return View();
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
+
+            var classView = new Class
+            {
+                Assignments = await _schoolContext.Assignments.Where(x => x.ClassId == teacher.ClassId).ToListAsync()
+            };
+
+            return View(classView);
         }
 
         public IActionResult Raport()
