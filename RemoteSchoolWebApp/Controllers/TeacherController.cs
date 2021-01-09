@@ -54,7 +54,7 @@ namespace RemoteSchoolWebApp.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Exercises()
+        public async Task<IActionResult> Assignments()
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
@@ -65,6 +65,54 @@ namespace RemoteSchoolWebApp.Controllers
             };
 
             return View(classView);
+        }
+
+        public IActionResult CreateAssignment()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAssignment([Bind("Id,Description,Date")] Assignment assignment)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
+
+            if (ModelState.IsValid)
+            {
+                assignment.ClassId = teacher.ClassId;
+                _schoolContext.Add(assignment);
+                await _schoolContext.SaveChangesAsync();
+                return RedirectToAction("Assignments");
+            }
+            return View(assignment);
+        }
+
+        public async Task<IActionResult> AssignmentDetails(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
+
+            var AssignmentStudentsVM = new AssignmentStudentsViewModel
+            {
+                Assignment = await _schoolContext.Assignments.FirstOrDefaultAsync(x => x.Id == id),
+                Students = await _schoolContext.Students.Where(x => x.ClassId == teacher.ClassId)
+                                               .Include(z => z.Grades.Where(y => y.AssignmentId == id))
+                                               .OrderBy(u => u.LastName).ToListAsync()
+            };
+
+            if (AssignmentStudentsVM.Assignment == null)
+            {
+                return NotFound();
+            }
+
+            return View(AssignmentStudentsVM);
         }
 
         public IActionResult Raport()

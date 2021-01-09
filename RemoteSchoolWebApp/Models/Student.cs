@@ -16,5 +16,6 @@ namespace RemoteSchoolWebApp.Models
         [ForeignKey("Class")]
         public int? ClassId { get; set; }
         public Class Class { get; set; }
+        public List<Grade> Grades { get; set; }
     }
 }
