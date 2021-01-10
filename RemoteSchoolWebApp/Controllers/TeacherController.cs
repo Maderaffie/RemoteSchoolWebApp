@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RemoteSchoolWebApp.Data;
 using RemoteSchoolWebApp.Models;
@@ -99,12 +100,22 @@ namespace RemoteSchoolWebApp.Controllers
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
 
+            List<SelectListItem> possibleGrades = new List<SelectListItem>();
+            possibleGrades.Add(new SelectListItem("", ""));
+
+            foreach (GradeValue gradeValue in (GradeValue[])Enum.GetValues(typeof(GradeValue)))
+            {
+                Debug.WriteLine(gradeValue);
+                possibleGrades.Add(new SelectListItem(gradeValue.ToString(), gradeValue.ToString()));
+            }
+
             var AssignmentStudentsVM = new AssignmentStudentsViewModel
             {
                 Assignment = await _schoolContext.Assignments.FirstOrDefaultAsync(x => x.Id == id),
                 Students = await _schoolContext.Students.Where(x => x.ClassId == teacher.ClassId)
                                                .Include(z => z.Grades.Where(y => y.AssignmentId == id))
-                                               .OrderBy(u => u.LastName).ToListAsync()
+                                               .OrderBy(u => u.LastName).ToListAsync(),
+                PossibleGrades = possibleGrades
             };
 
             if (AssignmentStudentsVM.Assignment == null)
@@ -113,6 +124,12 @@ namespace RemoteSchoolWebApp.Controllers
             }
 
             return View(AssignmentStudentsVM);
+        }
+
+        [HttpPost]
+        public IActionResult AssignmentDetails(AssignmentStudentsViewModel assignmentStudentsVM)
+        {
+            return RedirectToAction("Assignments");
         }
 
         public IActionResult Raport()

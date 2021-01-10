@@ -23,37 +23,22 @@
 <div>
     <a asp-action="Edit" asp-route-id="@Model.Assignment.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
-</div>
+</div><br />
 <div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Students[0].FirstName)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Students[0].LastName)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Students[0].Grades[0].Value)
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Students)
+    <form asp-action="AssignmentDetails">
+        @foreach (var item in Model.Students)
+        {
+            string fullName = item.FirstName + " " + item.LastName;
+            @Html.DisplayFor(modelItem => fullName)
+            if (item.Grades.Count == 0)
             {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FirstName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LastName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Grades[0].Value)
-                </td>
-            </tr>
+                item.Grades.Add(new Grade { Value = "" });
             }
-        </tbody>
-    </table>
+
+            <input asp-for="@item.Grades[0].AssignmentId" value="@item.Grades[0].AssignmentId"/>
+            <input asp-for="@item.Grades[0].StudentId" value="@item.Grades[0].StudentId"/>
+            <select asp-for="@item.Grades[0].Value" asp-items="Model.PossibleGrades"></select><br />
+        }
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </form>
 </div>

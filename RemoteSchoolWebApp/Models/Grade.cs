@@ -10,7 +10,7 @@ namespace RemoteSchoolWebApp.Models
     public class Grade : EntityBase
     {
         [Required]
-        public GradeValue Value { get; set; }
+        public string Value { get; set; }
 
         [ForeignKey("Student")]
         public int? StudentId { get; set; }
@@ -27,6 +27,6 @@ namespace RemoteSchoolWebApp.Models
         B = 4,
         C = 3,
         D = 2,
-        E = 1
+        E = 1,
     }
 }
