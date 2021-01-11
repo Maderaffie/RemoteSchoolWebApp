@@ -156,6 +156,51 @@ namespace RemoteSchoolWebApp.Controllers
             return RedirectToAction("Assignments");
         }
 
+        public IActionResult EditAssignment(int? id)
+        {
+            if (id is null)
+            {
+                return NotFound();
+            }
+            var assignment = _schoolContext.Assignments.Find(id);
+            if (assignment is null)
+            {
+                return NotFound();
+            }
+            return View(assignment);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditAssignment(int id, [Bind("Id, ClassId, Description,Date")] Assignment assignment)
+        {
+            if (id != assignment.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _schoolContext.Update(assignment);
+                    await _schoolContext.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_schoolContext.Assignments.Any(x => x.Id == assignment.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("Assignments");
+            }
+            return View(assignment);
+        }
+
         public IActionResult Raport()
         {
             return View();
