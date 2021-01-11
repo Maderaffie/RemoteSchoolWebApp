@@ -22,5 +22,11 @@ namespace RemoteSchoolWebApp.Data
         {
 
         }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            builder.Entity<Grade>().HasKey(x => new { x.AssignmentId, x.StudentId });
+        }
     }
 }

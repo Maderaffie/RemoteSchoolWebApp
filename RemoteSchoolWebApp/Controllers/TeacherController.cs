@@ -127,8 +127,32 @@ namespace RemoteSchoolWebApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult AssignmentDetails(AssignmentStudentsViewModel assignmentStudentsVM)
+        public IActionResult AssignmentDetails(List<Student> students)
         {
+            foreach (Student student in students)
+            {
+                var newGrade = student.Grades[0];
+                var grade = _schoolContext.Grades.Find(newGrade.AssignmentId, newGrade.StudentId);
+                if (newGrade.Value is null)
+                {
+                    if (grade is not null)
+                    {
+                        _schoolContext.Remove(grade);
+                        _schoolContext.SaveChanges();
+                    }
+                    continue;
+                }
+                
+                if (grade is null)
+                {
+                    _schoolContext.Grades.Add(newGrade);
+                } 
+                else
+                {
+                    grade.Value = newGrade.Value;
+                }
+                _schoolContext.SaveChanges();
+            }
             return RedirectToAction("Assignments");
         }
 

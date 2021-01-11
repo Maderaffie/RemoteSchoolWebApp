@@ -7,16 +7,17 @@ using System.Threading.Tasks;
 
 namespace RemoteSchoolWebApp.Models
 {
-    public class Grade : EntityBase
+    public class Grade
     {
         [Required]
         public string Value { get; set; }
-
+        [Key, Column(Order = 0)]
         [ForeignKey("Student")]
-        public int? StudentId { get; set; }
+        public int StudentId { get; set; }
         public Student Student { get; set; }
+        [Key, Column(Order = 1)]
         [ForeignKey("Assignment")]
-        public int? AssignmentId { get; set; }
+        public int AssignmentId { get; set; }
         public Assignment Assignment { get; set; }
 
     }

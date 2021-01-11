@@ -26,19 +26,21 @@
 </div><br />
 <div>
     <form asp-action="AssignmentDetails">
-        @foreach (var item in Model.Students)
+        @for (int i = 0; i < Model.Students.Count(); i++)
         {
-            string fullName = item.FirstName + " " + item.LastName;
-            @Html.DisplayFor(modelItem => fullName)
-            if (item.Grades.Count == 0)
+            if (Model.Students[i].Grades.Count == 0)
             {
-                item.Grades.Add(new Grade { Value = "" });
+                Model.Students[i].Grades.Add(new Grade { Value = "", AssignmentId = Model.Assignment.Id, StudentId = Model.Students[i].Id });
             }
+            string fullName = Model.Students[i].FirstName + " " + Model.Students[i].LastName;
+            @Html.DisplayFor(modelItem => fullName)
 
-            <input asp-for="@item.Grades[0].AssignmentId" value="@item.Grades[0].AssignmentId"/>
-            <input asp-for="@item.Grades[0].StudentId" value="@item.Grades[0].StudentId"/>
-            <select asp-for="@item.Grades[0].Value" asp-items="Model.PossibleGrades"></select><br />
+            <input asp-for="@Model.Students[i].Grades[0].AssignmentId" type="hidden" />
+            <input asp-for="@Model.Students[i].Grades[0].StudentId" type="hidden" />
+            <select asp-for="@Model.Students[i].Grades[0].Value" asp-items="Model.PossibleGrades"></select><br />
+
         }
+
         <input type="submit" value="Save" class="btn btn-primary" />
     </form>
 </div>
