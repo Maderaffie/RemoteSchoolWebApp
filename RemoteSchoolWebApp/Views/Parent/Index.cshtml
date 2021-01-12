@@ -1,0 +1,9 @@
+﻿@model RemoteSchoolWebApp.Models.Student
+
+<h1>
+    @{string fullName = Model.FirstName + " " + Model.LastName;} 
+    @Html.DisplayFor(model => fullName)
+</h1>
+<div>
+    <input type="file" name="image" />
+</div>

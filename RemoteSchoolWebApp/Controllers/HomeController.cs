@@ -125,15 +125,14 @@ namespace RemoteSchoolWebApp.Controllers
         public async Task<IActionResult> Login(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            var userRole = User.IsInRole("Parent") ? "Parent" : "Teacher";
-
             if (user == null)
             {
                 return RedirectToAction(nameof(Login));
             }
 
             var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, false);
-
+            IList<string> roles = await _signInManager.UserManager.GetRolesAsync(user);
+            var userRole = roles[0];
             if (!signInResult.Succeeded)
             {
                 return RedirectToAction(nameof(Login));
