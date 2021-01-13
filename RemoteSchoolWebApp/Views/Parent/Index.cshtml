@@ -1,9 +1,20 @@
 ﻿@model RemoteSchoolWebApp.Models.Student
 
 <h1>
-    @{string fullName = Model.FirstName + " " + Model.LastName;} 
+    @{string fullName = Model.FirstName + " " + Model.LastName;}
     @Html.DisplayFor(model => fullName)
 </h1>
+
 <div>
-    <input type="file" name="image" />
+    <form asp-action="UploadPhoto" enctype="multipart/form-data">
+        <input type="file" name="image" />
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </form>
 </div>
+
+@if (Model.Image != null)
+{
+    var base64 = Convert.ToBase64String(Model.Image);
+    var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+    <img src="@imgSrc"/>
+}
