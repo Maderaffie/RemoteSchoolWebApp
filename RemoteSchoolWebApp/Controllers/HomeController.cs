@@ -32,7 +32,20 @@ namespace RemoteSchoolWebApp.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            if (userEmail == null)
+            {
+                return View();
+            }
+            if (User.IsInRole("Teacher"))
+            {
+                return RedirectToAction("Index", "Teacher");
+            } 
+            else
+            {
+                return RedirectToAction("Index", "Parent");
+            }
+            
         }
 
         public IActionResult Register()

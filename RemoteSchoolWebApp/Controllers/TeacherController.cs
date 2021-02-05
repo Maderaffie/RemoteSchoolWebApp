@@ -205,5 +205,16 @@ namespace RemoteSchoolWebApp.Controllers
         {
             return View();
         }
+        public IActionResult StudentDetails(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            Student student = _schoolContext.Students.Include(x => x.Grades).SingleOrDefault(x => x.Id == id);
+            student.Grades.ForEach(x => x.Assignment = _schoolContext.Assignments.SingleOrDefault(y => y.Id == x.AssignmentId));
+            return View(student);
+        }
     }
 }

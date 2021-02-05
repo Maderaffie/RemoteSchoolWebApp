@@ -13,6 +13,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using SixLabors.ImageSharp.Formats;
+using Microsoft.EntityFrameworkCore;
 
 namespace RemoteSchoolWebApp.Controllers
 {
@@ -28,7 +29,9 @@ namespace RemoteSchoolWebApp.Controllers
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             Parent parent = _schoolContext.Parents.SingleOrDefault(x => x.Email == userEmail);
-            Student student = _schoolContext.Students.SingleOrDefault(x => x.ParentId == parent.Id);
+            Student student = _schoolContext.Students.Include(x => x.Grades).SingleOrDefault(x => x.ParentId == parent.Id);
+            student.Grades.ForEach(x => x.Assignment = _schoolContext.Assignments.SingleOrDefault(y => y.Id == x.AssignmentId));
+
             return View(student);
         }
 
