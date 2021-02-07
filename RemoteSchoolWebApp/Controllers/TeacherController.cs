@@ -216,5 +216,93 @@ namespace RemoteSchoolWebApp.Controllers
             student.Grades.ForEach(x => x.Assignment = _schoolContext.Assignments.SingleOrDefault(y => y.Id == x.AssignmentId));
             return View(student);
         }
+
+        public async Task<IActionResult> Messages()
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
+
+            var uniqueMessages = await _schoolContext.Messages.Where(x => x.TeacherId == teacher.Id).GroupBy(x => x.Content).Select(x => x.Key).ToListAsync();
+            List<Message> messages = new List<Message>();
+            foreach (string uniqueMessage in uniqueMessages)
+            {
+                Message message = _schoolContext.Messages.FirstOrDefault(x => x.Content == uniqueMessage);
+                messages.Add(message);
+            }
+            teacher.Messages = messages;
+            return View(teacher);
+        }
+
+        public IActionResult CreateMessage()
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
+
+            List<SelectListItem> parents = new List<SelectListItem>();
+            parents.Add(new SelectListItem("All", "-1"));
+
+            var parentList = _schoolContext.Parents.Where(x => x.ClassId == teacher.ClassId).ToList();
+            foreach(Parent parent in parentList)
+            {
+                string fullName = parent.FirstName + " " + parent.LastName;
+                parents.Add(new SelectListItem(fullName, parent.Id.ToString()));
+            }
+
+            var messageParentVM = new MessageParentViewModel
+            {
+                Message = new Message(),
+                Parents = parents
+            };
+
+            return View(messageParentVM);
+        }
+
+        [HttpPost]
+        public IActionResult CreateMessage(Message message)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
+            
+            if (message.ParentId == -1) //Message to each parent
+            {
+                var parentList = _schoolContext.Parents.Where(x => x.ClassId == teacher.ClassId);
+                foreach(Parent parent in parentList)
+                {
+                    Message messageToParent = new Message
+                    {
+                        Content = message.Content,
+                        ParentId = parent.Id,
+                        TeacherId = teacher.Id
+                    };
+                    _schoolContext.Messages.Add(messageToParent);
+                }
+            }
+            else if (message.ParentId is null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                message.TeacherId = teacher.Id;
+                _schoolContext.Messages.Add(message);
+            }
+            
+            _schoolContext.SaveChanges();
+            return RedirectToAction("Messages");
+        }
+
+        public IActionResult MessageDetails(int? id)
+        {
+            if (id is null)
+            {
+                return NotFound();
+            }
+            Message message = _schoolContext.Messages.FirstOrDefault(x => x.Id == id);
+            List<Message> messages = _schoolContext.Messages.Where(x => x.Content == message.Content).Include(x => x.Parent).ToList();
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
+            teacher.Messages = messages;
+            return View(teacher);
+        }
     }
 }

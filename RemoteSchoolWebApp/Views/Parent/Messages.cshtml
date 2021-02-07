@@ -1,0 +1,22 @@
+﻿@model RemoteSchoolWebApp.Models.Parent
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Wiadomość
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Messages)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Content)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

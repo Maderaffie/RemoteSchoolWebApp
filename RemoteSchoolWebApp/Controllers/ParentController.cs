@@ -27,6 +27,11 @@ namespace RemoteSchoolWebApp.Controllers
         }
         public IActionResult Index()
         {
+            int unreadMessagesCount = CheckForUnreadMessages();
+            if (unreadMessagesCount > 0)
+            {
+                ViewBag.Message = string.Format("Liczba wiadomosci do przeczytania: " + unreadMessagesCount.ToString());
+            }
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             Parent parent = _schoolContext.Parents.SingleOrDefault(x => x.Email == userEmail);
             Student student = _schoolContext.Students.Include(x => x.Grades).SingleOrDefault(x => x.ParentId == parent.Id);
@@ -59,6 +64,28 @@ namespace RemoteSchoolWebApp.Controllers
 
             await _schoolContext.SaveChangesAsync();
             return RedirectToAction("Index");
+        }
+
+        public IActionResult Messages()
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            Parent parent = _schoolContext.Parents.SingleOrDefault(x => x.Email == userEmail);
+            var messages = _schoolContext.Messages.Where(x => x.ParentId == parent.Id).OrderByDescending(x => x.Id).ToList();
+            foreach (Message message in messages)
+            {
+                message.IsRead = true;
+            }
+            _schoolContext.SaveChanges();
+            parent.Messages = messages;
+            return View(parent);
+        }
+
+        public int CheckForUnreadMessages()
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            Parent parent = _schoolContext.Parents.SingleOrDefault(x => x.Email == userEmail);
+            List<Message> messages = _schoolContext.Messages.Where(x => x.IsRead == false && x.ParentId == parent.Id).ToList();
+            return messages.Count;
         }
     }
 }

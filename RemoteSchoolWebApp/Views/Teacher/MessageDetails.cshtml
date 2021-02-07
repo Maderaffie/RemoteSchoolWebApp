@@ -1,0 +1,44 @@
+﻿@model RemoteSchoolWebApp.Models.Teacher
+
+<h1>Details</h1>
+
+<div>
+    @Html.DisplayFor(model => model.Messages[0].Content)
+</div>
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Messages[0].Parent)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Messages[0].IsRead)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Messages)
+            {
+                string fullName = item.Parent.FirstName + " " + item.Parent.LastName;
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => fullName)
+                    </td>
+                    @if (item.IsRead)
+                    {
+                        <td>
+                            Wyświetlono
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            Nie wyświetlono
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
