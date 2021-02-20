@@ -34,6 +34,7 @@ namespace RemoteSchoolWebApp.Controllers
 
             var classView = new Class
             {
+                Name = _schoolContext.Classes.SingleOrDefault(x => x.Id == teacher.ClassId).Name,
                 Students = await _schoolContext.Students.Where(x => x.ClassId == teacher.ClassId).ToListAsync()
             };
 
@@ -142,6 +143,7 @@ namespace RemoteSchoolWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult AssignmentDetails(List<Student> students)
         {
             foreach (Student student in students)
@@ -190,6 +192,7 @@ namespace RemoteSchoolWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditAssignment(int id, [Bind("Id, ClassId, Description,Date")] Assignment assignment)
         {
             if (id != assignment.Id)
@@ -286,6 +289,7 @@ namespace RemoteSchoolWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult CreateMessage(Message message)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
@@ -349,7 +353,7 @@ namespace RemoteSchoolWebApp.Controllers
 
             var classView = new Class
             {
-                Assignments = _schoolContext.Assignments.Where(x => x.ClassId == teacher.ClassId).Include(y => y.Grades).ToList()
+                Assignments = _schoolContext.Assignments.Where(x => x.ClassId == teacher.ClassId).Include(y => y.Grades).OrderByDescending(x => x.Date).ToList()
             };
 
             foreach (var assignment in classView.Assignments)

@@ -1,5 +1,11 @@
 ﻿@model RemoteSchoolWebApp.Models.Class
 
+<h1>
+    @{
+        string welcomeString = "Class: " + Model.Name;
+    }
+    @Html.DisplayFor(x => welcomeString)
+</h1>
 <table class="table">
     <thead>
         <tr>

@@ -74,6 +74,7 @@ namespace RemoteSchoolWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
         {
             string email = registerViewModel.Login;
@@ -177,6 +178,7 @@ namespace RemoteSchoolWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(RegisterViewModel registerViewModel)//(string email, string password)
         {
             string email = registerViewModel.Login;

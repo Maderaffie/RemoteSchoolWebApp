@@ -6,20 +6,34 @@
 </h1>
 
 <div>
-    <form asp-action="UploadPhoto" enctype="multipart/form-data">
-        <input type="file" name="image" />
-        <input type="submit" value="Save" class="btn btn-primary" />
-    </form>
+
     @if (Model.Image != null)
     {
+        <div>
+            Change photo:
+            <form asp-action="UploadPhoto" enctype="multipart/form-data">
+                <input type="file" name="image" />
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </form>
+        </div>
         var base64 = Convert.ToBase64String(Model.Image);
         var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
         <img src="@imgSrc" />
     }
+    else
+    {
+        <div>
+            Upload photo:
+            <form asp-action="UploadPhoto" enctype="multipart/form-data">
+                <input type="file" name="image" />
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </form>
+        </div>
+    }
 </div>
 <div>
     <h3>
-        Oceny
+        Grades
     </h3>
     <table class="table">
         <thead>

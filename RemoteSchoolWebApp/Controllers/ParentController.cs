@@ -69,6 +69,7 @@ namespace RemoteSchoolWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadPhoto(IFormFile image)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
