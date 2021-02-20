@@ -9,8 +9,11 @@
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Assignment.Date)
         </dt>
+        @{
+            string date = Model.Assignment.Date.ToShortDateString();
+        }
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Assignment.Date)
+            @Html.DisplayFor(model => date)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Assignment.Description)

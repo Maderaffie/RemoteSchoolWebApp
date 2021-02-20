@@ -6,21 +6,35 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Messages[0].Content)
+                @Html.DisplayNameFor(model => model.Messages[0].Subject)
+            </th>
+            <th>
+                Details
             </th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Messages)
+        @if (Model.Messages.Count == 0)
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Content)
-                </td>
-                <td>
-                    <a asp-action="MessageDetails" asp-route-id="@item.Id">Details</a>
+                    No messages to display.
                 </td>
             </tr>
+        }
+        else
+        {
+            foreach (var item in Model.Messages)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Subject)
+                    </td>
+                    <td>
+                        <a asp-action="MessageDetails" asp-route-id="@item.Id">Details</a>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>

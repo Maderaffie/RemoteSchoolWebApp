@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RemoteSchoolWebApp.Data;
@@ -45,17 +46,41 @@ namespace RemoteSchoolWebApp.Controllers
             {
                 return RedirectToAction("Index", "Parent");
             }
-            
         }
 
-        public IActionResult Register()
+        public IActionResult Register(string error = "")
         {
-            return View();
+            List<SelectListItem> possibleClasses = new List<SelectListItem>();
+            List<Class> classes = _schoolContext.Classes.ToList();
+            foreach (Class @class in classes)
+            {
+                possibleClasses.Add(new SelectListItem(@class.Name, @class.Name));
+            }
+            var registerVM = new RegisterViewModel
+            {
+                Classes = possibleClasses
+            };
+
+            if (error != "")
+            {
+                ViewData["error"] = error;
+            }
+            else
+            {
+                ViewData["error"] = null;
+            }
+
+            return View(registerVM);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(string email, string password, string className, string role)
+        public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
         {
+            string email = registerViewModel.Login;
+            string password = registerViewModel.Password;
+            string className = registerViewModel.ClassName;
+            string role = registerViewModel.Role;
+
             Regex emailRegex = new Regex(@"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$");
             if (!emailRegex.IsMatch(email))
             {
@@ -72,6 +97,11 @@ namespace RemoteSchoolWebApp.Controllers
                 Email = email
             };
 
+            if (_schoolContext.Parents.Any(x => x.Email == email) || _schoolContext.Teachers.Any(x => x.Email == email))
+            {
+                return RedirectToAction("Register", new { error = "Email address is already in use!" });
+            }
+
             var result = await _userManager.CreateAsync(user, password);
 
             if (!result.Succeeded)
@@ -82,6 +112,11 @@ namespace RemoteSchoolWebApp.Controllers
 
             if (role.Equals("Teacher"))
             {
+                int classId = _schoolContext.Classes.SingleOrDefault(x => x.Name == className).Id;
+                if (_schoolContext.Teachers.Any(x => x.ClassId == classId))
+                {
+                    return RedirectToAction("Register", new {error = "There is a teacher in this class!"});
+                }
                 await _userManager.AddToRoleAsync(user, "Teacher");
                 Teacher teacher = new Teacher();
                 teacher.Email = email;
@@ -112,8 +147,7 @@ namespace RemoteSchoolWebApp.Controllers
             if (role.Equals("Teacher"))
                 return RedirectToAction("TeacherInformation", "Teacher");
             else
-                return RedirectToAction(nameof(ParentInformation));
-            
+                return RedirectToAction("ParentInformation", "Parent");
         }
 
         private async Task CreateRoleIfNotExists(string role)
@@ -129,18 +163,28 @@ namespace RemoteSchoolWebApp.Controllers
             }
         }
 
-        public IActionResult Login()
+        public IActionResult Login(string error = "")
         {
+            if (error != "")
+            {
+                ViewData["error"] = error;
+            }
+            else
+            {
+                ViewData["error"] = null;
+            }
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(string email, string password)
+        public async Task<IActionResult> Login(RegisterViewModel registerViewModel)//(string email, string password)
         {
+            string email = registerViewModel.Login;
+            string password = registerViewModel.Password;
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction("Login", new { error = "User does not exist!" });
             }
 
             var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, false);
@@ -148,39 +192,10 @@ namespace RemoteSchoolWebApp.Controllers
             var userRole = roles[0];
             if (!signInResult.Succeeded)
             {
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction("Login", new { error = "Wrong email or password!" });
             }
 
             return RedirectToAction("Index", userRole);
-        }
-
-        public IActionResult ParentInformation()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ParentInformation(string parentFirstName, string parentLastName, 
-                                                            string studentFirstName, string studentLastName)
-        {
-            var userEmail = User.FindFirstValue(ClaimTypes.Email);
-
-            Parent parent = _schoolContext.Parents.SingleOrDefault(x => x.Email == userEmail);
-            parent.FirstName = parentFirstName;
-            parent.LastName = parentLastName;
-
-            Student student = new Student
-            {
-                FirstName = studentFirstName,
-                LastName = studentLastName, 
-                ParentId = parent.Id,
-                ClassId = parent.ClassId
-            };
-            _schoolContext.Students.Add(student);
-
-            _schoolContext.SaveChanges();
-
-            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Logout()

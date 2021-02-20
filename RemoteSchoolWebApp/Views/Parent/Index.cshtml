@@ -30,22 +30,41 @@
                 <th>
                     @Html.DisplayNameFor(model => model.Grades[0].Value)
                 </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Grades[0].Assignment.Date)
+                </th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Grades)
+            @if (Model.Grades.Count == 0)
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Assignment.Description)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Value)
+                        No grades to display.
                     </td>
                 </tr>
             }
+            else
+            {
+                @foreach (var item in Model.Grades)
+                {
+                    string date = item.Assignment.Date.ToShortDateString();
+                    <tr>
+                        <td>
+                            <a asp-action="AssignmentDetails" asp-route-id="@item.Assignment.Id">@Html.DisplayFor(modelItem => item.Assignment.Description)</a>
+</td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Value)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => date)
+                        </td>
+                    </tr>
+                }
+            }
         </tbody>
     </table>
+    <a asp-action="DeleteStudent">Delete student</a>
 </div>
 
 @if (ViewBag.Message != null)

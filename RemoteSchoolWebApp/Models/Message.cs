@@ -12,6 +12,9 @@ namespace RemoteSchoolWebApp.Models
         [Required]
         public bool IsRead { get; set; }
         [Required]
+        [StringLength(256)]
+        public string Subject { get; set; }
+        [Required]
         [StringLength(1024)]
         public string Content { get; set; }
         [ForeignKey("Teacher")]

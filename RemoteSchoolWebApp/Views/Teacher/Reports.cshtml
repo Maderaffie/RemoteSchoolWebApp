@@ -1,7 +1,4 @@
 ﻿@model RemoteSchoolWebApp.Models.Class
-    <p>
-        <a asp-action="CreateAssignment">Create New</a>
-    </p>
 <table class="table">
     <thead>
         <tr>
@@ -10,6 +7,12 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Assignments[0].Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Assignments[0].GradesCount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Assignments[0].Average)
             </th>
         </tr>
     </thead>
@@ -33,6 +36,12 @@
                     </td>
                     <td>
                         <a asp-action="AssignmentDetails" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Description)</a>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.GradesCount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Average)
                     </td>
                 </tr>
             }

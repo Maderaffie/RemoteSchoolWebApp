@@ -25,6 +25,10 @@ namespace RemoteSchoolWebApp.Controllers
 
         public async Task<IActionResult> Index()
         {
+            if (CheckIfTeacherExists() is false)
+            {
+                return RedirectToAction("TeacherInformation");
+            }
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
 
@@ -42,7 +46,7 @@ namespace RemoteSchoolWebApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> TeacherInformation(string teacherFirstName, string teacherLastName)
+        public IActionResult TeacherInformation(string teacherFirstName, string teacherLastName)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
@@ -57,12 +61,16 @@ namespace RemoteSchoolWebApp.Controllers
 
         public async Task<IActionResult> Assignments()
         {
+            if (CheckIfTeacherExists() is false)
+            {
+                return RedirectToAction("TeacherInformation");
+            }
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
 
             var classView = new Class
             {
-                Assignments = await _schoolContext.Assignments.Where(x => x.ClassId == teacher.ClassId).ToListAsync()
+                Assignments = await _schoolContext.Assignments.Where(x => x.ClassId == teacher.ClassId).OrderByDescending(x => x.Date).ToListAsync()
             };
 
             return View(classView);
@@ -70,6 +78,10 @@ namespace RemoteSchoolWebApp.Controllers
 
         public IActionResult CreateAssignment()
         {
+            if (CheckIfTeacherExists() is false)
+            {
+                return RedirectToAction("TeacherInformation");
+            }
             return View();
         }
 
@@ -92,6 +104,10 @@ namespace RemoteSchoolWebApp.Controllers
 
         public async Task<IActionResult> AssignmentDetails(int? id)
         {
+            if (CheckIfTeacherExists() is false)
+            {
+                return RedirectToAction("TeacherInformation");
+            }
             if (id == null)
             {
                 return NotFound();
@@ -105,7 +121,6 @@ namespace RemoteSchoolWebApp.Controllers
 
             foreach (GradeValue gradeValue in (GradeValue[])Enum.GetValues(typeof(GradeValue)))
             {
-                Debug.WriteLine(gradeValue);
                 possibleGrades.Add(new SelectListItem(gradeValue.ToString(), gradeValue.ToString()));
             }
 
@@ -158,6 +173,10 @@ namespace RemoteSchoolWebApp.Controllers
 
         public IActionResult EditAssignment(int? id)
         {
+            if (CheckIfTeacherExists() is false)
+            {
+                return RedirectToAction("TeacherInformation");
+            }
             if (id is null)
             {
                 return NotFound();
@@ -201,12 +220,12 @@ namespace RemoteSchoolWebApp.Controllers
             return View(assignment);
         }
 
-        public IActionResult Raport()
-        {
-            return View();
-        }
         public IActionResult StudentDetails(int? id)
         {
+            if (CheckIfTeacherExists() is false)
+            {
+                return RedirectToAction("TeacherInformation");
+            }
             if (id == null)
             {
                 return NotFound();
@@ -219,6 +238,10 @@ namespace RemoteSchoolWebApp.Controllers
 
         public async Task<IActionResult> Messages()
         {
+            if (CheckIfTeacherExists() is false)
+            {
+                return RedirectToAction("TeacherInformation");
+            }
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
 
@@ -229,12 +252,17 @@ namespace RemoteSchoolWebApp.Controllers
                 Message message = _schoolContext.Messages.FirstOrDefault(x => x.Content == uniqueMessage);
                 messages.Add(message);
             }
+            messages = messages.OrderByDescending(x => x.Id).ToList();
             teacher.Messages = messages;
             return View(teacher);
         }
 
         public IActionResult CreateMessage()
         {
+            if (CheckIfTeacherExists() is false)
+            {
+                return RedirectToAction("TeacherInformation");
+            }
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
 
@@ -270,6 +298,7 @@ namespace RemoteSchoolWebApp.Controllers
                 {
                     Message messageToParent = new Message
                     {
+                        Subject = message.Subject,
                         Content = message.Content,
                         ParentId = parent.Id,
                         TeacherId = teacher.Id
@@ -293,6 +322,10 @@ namespace RemoteSchoolWebApp.Controllers
 
         public IActionResult MessageDetails(int? id)
         {
+            if (CheckIfTeacherExists() is false)
+            {
+                return RedirectToAction("TeacherInformation");
+            }
             if (id is null)
             {
                 return NotFound();
@@ -303,6 +336,95 @@ namespace RemoteSchoolWebApp.Controllers
             Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
             teacher.Messages = messages;
             return View(teacher);
+        }
+
+        public IActionResult Reports()
+        {
+            if (CheckIfTeacherExists() is false)
+            {
+                return RedirectToAction("TeacherInformation");
+            }
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
+
+            var classView = new Class
+            {
+                Assignments = _schoolContext.Assignments.Where(x => x.ClassId == teacher.ClassId).Include(y => y.Grades).ToList()
+            };
+
+            foreach (var assignment in classView.Assignments)
+            {
+                if (assignment.Grades is null || assignment.Grades.Count == 0)
+                {
+                    assignment.GradesCount = 0;
+                    assignment.Average = "-";
+                }
+                else
+                {
+                    assignment.GradesCount = assignment.Grades.Count;
+                    assignment.Average = CalculateAverage(assignment);
+                }
+            }
+            return View(classView);
+        }
+
+        public bool CheckIfTeacherExists()
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            Teacher teacher = _schoolContext.Teachers.SingleOrDefault(x => x.Email == userEmail);
+            if (teacher.FirstName is null || teacher.LastName is null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        public string CalculateAverage(Assignment assignment)
+        {
+            int sum = 0, count = 0;
+            if (assignment.Grades is null)
+            {
+                return "-";
+            }
+            foreach (var grade in assignment.Grades)
+            {
+                switch(grade.Value)
+                {
+                    case "A":
+                        sum += 5;
+                        count++;
+                        break;
+                    case "B":
+                        sum += 4;
+                        count++;
+                        break;
+                    case "C":
+                        sum += 3;
+                        count++;
+                        break;
+                    case "D":
+                        sum += 2;
+                        count++;
+                        break;
+                    case "E":
+                        sum += 1;
+                        count++;
+                        break;
+                }
+            }
+            int average = (int)Math.Round((double)sum / count);
+            return average switch
+            {
+                1 => "E",
+                2 => "D",
+                3 => "C",
+                4 => "B",
+                5 => "A",
+                _ => "-",
+            };
         }
     }
 }

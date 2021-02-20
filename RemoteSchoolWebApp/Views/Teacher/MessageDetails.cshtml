@@ -1,10 +1,11 @@
 ﻿@model RemoteSchoolWebApp.Models.Teacher
 
-<h1>Details</h1>
+<h1>@Html.DisplayFor(model => model.Messages[0].Subject)</h1>
 
 <div>
     @Html.DisplayFor(model => model.Messages[0].Content)
 </div>
+<br />
 <div>
     <table class="table">
         <thead>

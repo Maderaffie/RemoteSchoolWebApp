@@ -4,19 +4,30 @@
     <thead>
         <tr>
             <th>
-                Imię i nazwisko
+                Fullname
             </th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Students)
+        @if (Model.Students.Count == 0)
         {
-            string fullName = item.FirstName + " " + item.LastName;
-        <tr>
-            <td>
-                <a asp-action="StudentDetails" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => fullName)</a>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    No students to display.
+                </td>
+            </tr>
+        }
+        else
+        {
+            foreach (var item in Model.Students)
+            {
+                string fullName = item.FirstName + " " + item.LastName;
+                <tr>
+                    <td>
+                        <a asp-action="StudentDetails" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => fullName)</a>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>

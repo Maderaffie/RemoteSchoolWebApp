@@ -9,13 +9,27 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Messages)
+        @if (Model.Messages.Count == 0)
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Content)
+                    No messages to display.
                 </td>
             </tr>
+        }
+        else
+        {
+            foreach (var item in Model.Messages)
+            {
+                <tr>
+                    <td>
+                        <h4>
+                            @Html.DisplayFor(modelItem => item.Subject)
+                        </h4>
+                        @Html.DisplayFor(modelItem => item.Content)
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>
