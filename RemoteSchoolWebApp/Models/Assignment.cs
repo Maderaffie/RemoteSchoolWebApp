@@ -24,7 +24,7 @@ namespace RemoteSchoolWebApp.Models
         public List<Grade> Grades { get; set; }
 
         [NotMapped]
-        public string Average { get; set; }
+        public double Average { get; set; }
         [NotMapped]
         public int GradesCount { get; set; }
     }

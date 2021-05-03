@@ -10,7 +10,7 @@ namespace RemoteSchoolWebApp.Models
     public class Grade
     {
         [Required]
-        public string Value { get; set; }
+        public int Value { get; set; }
         [Key, Column(Order = 0)]
         [ForeignKey("Student")]
         public int StudentId { get; set; }

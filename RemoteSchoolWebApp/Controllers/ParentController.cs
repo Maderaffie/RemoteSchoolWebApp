@@ -152,7 +152,7 @@ namespace RemoteSchoolWebApp.Controllers
             List<SelectListItem> studentGrade = new List<SelectListItem>();
             var assignment = _schoolContext.Assignments.FirstOrDefault(x => x.Id == id);
             var grade = _schoolContext.Grades.SingleOrDefault(x => x.AssignmentId == assignment.Id && x.StudentId == student.Id);
-            studentGrade.Add(new SelectListItem(grade.Value, grade.Value));
+            studentGrade.Add(new SelectListItem(grade.Value.ToString(), grade.Value.ToString()));
             List<Student> students = new List<Student>();
             students.Add(student);
             var AssignmentStudentsVM = new AssignmentStudentsViewModel

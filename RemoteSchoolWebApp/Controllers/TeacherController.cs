@@ -120,9 +120,9 @@ namespace RemoteSchoolWebApp.Controllers
             List<SelectListItem> possibleGrades = new List<SelectListItem>();
             possibleGrades.Add(new SelectListItem("", ""));
 
-            foreach (GradeValue gradeValue in (GradeValue[])Enum.GetValues(typeof(GradeValue)))
+            for (int i = 1; i <= 6; i++)
             {
-                possibleGrades.Add(new SelectListItem(gradeValue.ToString(), gradeValue.ToString()));
+                possibleGrades.Add(new SelectListItem(i.ToString(), i.ToString()));
             }
 
             var AssignmentStudentsVM = new AssignmentStudentsViewModel
@@ -150,7 +150,7 @@ namespace RemoteSchoolWebApp.Controllers
             {
                 var newGrade = student.Grades[0];
                 var grade = _schoolContext.Grades.Find(newGrade.AssignmentId, newGrade.StudentId);
-                if (newGrade.Value is null)
+                if (newGrade.Value == 0)
                 {
                     if (grade is not null)
                     {
@@ -361,12 +361,12 @@ namespace RemoteSchoolWebApp.Controllers
                 if (assignment.Grades is null || assignment.Grades.Count == 0)
                 {
                     assignment.GradesCount = 0;
-                    assignment.Average = "-";
+                    assignment.Average = 0;
                 }
                 else
                 {
                     assignment.GradesCount = assignment.Grades.Count;
-                    assignment.Average = CalculateAverage(assignment);
+                    assignment.Average = assignment.Grades.Select(x => x.Value).Average();
                 }
             }
             return View(classView);
@@ -384,51 +384,6 @@ namespace RemoteSchoolWebApp.Controllers
             {
                 return true;
             }
-        }
-
-        public string CalculateAverage(Assignment assignment)
-        {
-            int sum = 0, count = 0;
-            if (assignment.Grades is null)
-            {
-                return "-";
-            }
-            foreach (var grade in assignment.Grades)
-            {
-                switch(grade.Value)
-                {
-                    case "A":
-                        sum += 5;
-                        count++;
-                        break;
-                    case "B":
-                        sum += 4;
-                        count++;
-                        break;
-                    case "C":
-                        sum += 3;
-                        count++;
-                        break;
-                    case "D":
-                        sum += 2;
-                        count++;
-                        break;
-                    case "E":
-                        sum += 1;
-                        count++;
-                        break;
-                }
-            }
-            int average = (int)Math.Round((double)sum / count);
-            return average switch
-            {
-                1 => "E",
-                2 => "D",
-                3 => "C",
-                4 => "B",
-                5 => "A",
-                _ => "-",
-            };
         }
     }
 }
